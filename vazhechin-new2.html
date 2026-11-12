@@ -1,0 +1,791 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>واژه‌چین | کارآگاه واژه‌ها</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Tahoma,Arial,sans-serif;
+ background:linear-gradient(145deg,#101d3a,#243b64);
+ color:#202b46;min-height:100vh;padding:18px
+}
+.container{max-width:850px;margin:auto}
+header{text-align:center;color:white;padding:20px 5px}
+header h1{font-size:30px;margin:5px}
+header p{color:#dbe7ff}
+.card{
+ background:white;border-radius:20px;padding:22px;
+ margin:16px 0;box-shadow:0 8px 25px #0002
+}
+h2{color:#263e70;margin-top:0}
+input,textarea{
+ width:100%;padding:13px;border:1px solid #ccd4e5;
+ border-radius:10px;font:inherit;margin:7px 0
+}
+textarea{min-height:100px}
+button{
+ border:0;border-radius:11px;padding:12px 18px;
+ font:inherit;cursor:pointer;margin:5px
+}
+.primary{background:#3459a3;color:white}
+.green{background:#188b69;color:white}
+.orange{background:#e99b35;color:white}
+.gray{background:#e8edf5;color:#263e70}
+.red{background:#bd3d4c;color:white}
+button:disabled{opacity:.45;cursor:not-allowed}
+.center{text-align:center}
+.big{font-size:22px;font-weight:bold}
+.wordbox{
+ background:#edf3ff;border-radius:15px;padding:20px;
+ margin:15px 0;text-align:center
+}
+.hidden{display:none}
+.tabs{display:flex;flex-wrap:wrap;justify-content:center}
+.status{
+ padding:12px;border-radius:10px;background:#eef2f8;
+ margin:10px 0;overflow-wrap:anywhere
+}
+.good{color:#13835e;font-weight:bold}
+.bad{color:#c33;font-weight:bold}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:9px;border-bottom:1px solid #ddd;text-align:center}
+footer{text-align:center;color:#dbe7ff;font-size:12px;padding:15px}
+small{color:#667}
+select{
+ width:100%;padding:12px;border:1px solid #ccd4e5;
+ border-radius:10px;font:inherit;margin:7px 0
+}
+@media(max-width:520px){
+ body{padding:9px}
+ .card{padding:16px}
+ header h1{font-size:25px}
+ button{padding:11px 13px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+<h1>🕵️ واژه‌چین</h1>
+<p>کارآگاه واژه‌ها | بشنو، فکر کن، بنویس!</p>
+</header>
+
+<div class="card center">
+ <div class="tabs">
+  <button class="primary" onclick="showPage('game')">🎮 ورود به بازی</button>
+  <button class="gray" onclick="showPage('teacher')">👩‍🏫 پنل آموزگار</button>
+  <button class="gray" onclick="showPage('reports')">📊 گزارش‌ها</button>
+ </div>
+</div>
+
+<section id="game" class="card">
+<h2>🎯 مأموریت کارآگاه</h2>
+<div id="mission" class="status center">مأموریت املایی آماده است.</div>
+
+<label>نام کارآگاه کوچک:</label>
+<input id="student" placeholder="نام خودت را بنویس">
+
+<div class="center">
+<button class="primary" onclick="startGame()">شروع مأموریت</button>
+</div>
+
+<div class="wordbox">
+ <div id="counter">آماده شروع؟</div>
+ <p class="big" id="clue">برای شنیدن واژه آماده‌ای؟</p>
+ <button class="orange" onclick="playWord()">🔊 شنیدن واژه</button>
+ <button class="gray" onclick="playWord()">🔁 تکرار واژه</button>
+</div>
+
+<input id="answer" placeholder="واژه‌ای را که شنیدی بنویس"
+ onkeydown="if(event.key==='Enter')checkAnswer()">
+
+<div class="center">
+ <button class="green" id="checkBtn" onclick="checkAnswer()">بررسی پاسخ</button>
+ <button class="primary" id="nextBtn" onclick="nextWord()" disabled>واژه بعدی ←</button>
+</div>
+
+<div id="feedback" class="status center">منتظر شروع مأموریت...</div>
+<div class="center">
+ <span>⭐ امتیاز: </span><b id="score">۰</b>
+</div>
+</section>
+
+<section id="teacher" class="card hidden">
+<h2>👩‍🏫 پنل آموزگار</h2>
+
+<label>عنوان مأموریت:</label>
+<input id="missionInput" placeholder="مثلاً املای درس اول">
+
+<label>فهرست واژه‌ها (هر واژه در یک خط):</label>
+<textarea id="wordsInput" placeholder="مدرسه&#10;دانش‌آموز&#10;دوستی&#10;آموزگار"></textarea>
+
+<button class="primary" onclick="saveWords()">ذخیره واژه‌ها</button>
+<button class="gray" onclick="loadWords()">بارگذاری فهرست ذخیره‌شده</button>
+
+<div class="status">
+<b>🎙 ضبط صدای آموزگار</b>
+<p><small>
+برای ضبط صدا، صفحه باید با نشانی HTTPS باز شده باشد.
+در اجرای مستقیم فایل از حافظه گوشی، مرورگر ممکن است اجازه ضبط ندهد.
+</small></p>
+<div id="micStatus">در حال بررسی وضعیت میکروفون...</div>
+<button class="gray" onclick="checkMicrophone()">بررسی مجدد میکروفون</button>
+</div>
+
+<label>انتخاب واژه برای ضبط صدا:</label>
+<select id="recordSelect"></select>
+
+<div class="center">
+<button class="green" id="recordBtn" onclick="recordAudio()">🔴 شروع ضبط</button>
+<button class="orange" id="stopBtn" onclick="stopRecording()" disabled>⏹ پایان ضبط</button>
+<button class="primary" onclick="playRecorded()">▶ پخش صدای ضبط‌شده</button>
+<button class="red" onclick="deleteRecorded()">حذف صدا</button>
+</div>
+
+<div id="recordStatus" class="status center">
+هنوز صدایی ضبط نشده است.
+</div>
+<audio id="audioPlayer" controls style="width:100%"></audio>
+</section>
+
+<section id="reports" class="card hidden">
+<h2>📊 گزارش عملکرد کارآگاهان</h2>
+<div id="reportStats" class="status"></div>
+
+<div style="overflow-x:auto">
+<table>
+<thead>
+<tr>
+<th>نام</th><th>مأموریت</th><th>پاسخ درست</th>
+<th>تلاش</th><th>امتیاز</th>
+</tr>
+</thead>
+<tbody id="reportBody"></tbody>
+</table>
+</div>
+
+<div class="center">
+<button class="green" onclick="downloadCSV()">دانلود گزارش CSV</button>
+<button class="red" onclick="clearReports()">پاک کردن گزارش‌ها</button>
+</div>
+</section>
+
+<footer>واژه‌چین | ابزار تعاملی آموزش املا در دوره ابتدایی</footer>
+</div>
+
+<script>
+const DB_NAME='VazhechinAudioV2';
+const STORE='audio';
+const REPORT_KEY='vazhechin_reports_v2';
+
+let words=[];
+let index=0;
+let score=0;
+let attempts=0;
+let correct=0;
+let solved=false;
+let studentName='';
+let missionName='';
+let recorder=null;
+let stream=null;
+let chunks=[];
+let dbPromise=null;
+let audioUrl=null;
+
+function showPage(id){
+ document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+ if(id==='reports')renderReports();
+ if(id==='teacher')refreshSelect();
+}
+
+function normalize(s){
+ return String(s||'').trim()
+ .replace(/ي/g,'ی').replace(/ك/g,'ک')
+ .replace(/[\u064B-\u065F\u0670]/g,'');
+}
+
+function openDB(){
+ if(dbPromise)return dbPromise;
+
+ dbPromise=new Promise((resolve,reject)=>{
+  const req=indexedDB.open(DB_NAME,1);
+
+  req.onupgradeneeded=()=>{
+   const d=req.result;
+   if(!d.objectStoreNames.contains(STORE))
+    d.createObjectStore(STORE);
+  };
+
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error);
+ });
+
+ return dbPromise;
+}
+
+async function putAudio(key,blob){
+ const database=await openDB();
+
+ return new Promise((resolve,reject)=>{
+  const tx=database.transaction(STORE,'readwrite');
+  tx.objectStore(STORE).put(blob,key);
+  tx.oncomplete=resolve;
+  tx.onerror=()=>reject(tx.error);
+  tx.onabort=()=>reject(tx.error);
+ });
+}
+
+async function getAudio(key){
+ const database=await openDB();
+
+ return new Promise((resolve,reject)=>{
+  const tx=database.transaction(STORE,'readonly');
+  const req=tx.objectStore(STORE).get(key);
+
+  req.onsuccess=()=>resolve(req.result||null);
+  req.onerror=()=>reject(req.error);
+ });
+}
+
+async function removeAudio(key){
+ const database=await openDB();
+
+ return new Promise((resolve,reject)=>{
+  const tx=database.transaction(STORE,'readwrite');
+  tx.objectStore(STORE).delete(key);
+  tx.oncomplete=resolve;
+  tx.onerror=()=>reject(tx.error);
+ });
+}
+
+function saveWords(){
+ const list=document.getElementById('wordsInput').value
+ .split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+
+ words=[...new Set(list)];
+
+ missionName=
+ document.getElementById('missionInput').value.trim()
+ ||'مأموریت املایی';
+
+ localStorage.setItem('vazhechin_words',JSON.stringify(words));
+ localStorage.setItem('vazhechin_mission',missionName);
+
+ refreshSelect();
+
+ document.getElementById('mission').textContent=
+ 'مأموریت: '+missionName;
+
+ alert('واژه‌ها ذخیره شدند. تعداد واژه‌ها: '+words.length);
+}
+
+function loadWords(){
+ try{
+  words=JSON.parse(localStorage.getItem('vazhechin_words')||'[]');
+  if(!Array.isArray(words))words=[];
+ }catch(e){words=[];}
+
+ missionName=
+ localStorage.getItem('vazhechin_mission')
+ ||'مأموریت املایی';
+
+ document.getElementById('wordsInput').value=words.join('\n');
+ document.getElementById('missionInput').value=missionName;
+ document.getElementById('mission').textContent='مأموریت: '+missionName;
+
+ refreshSelect();
+}
+
+function refreshSelect(){
+ const sel=document.getElementById('recordSelect');
+ const previous=sel.value;
+
+ sel.innerHTML='';
+
+ words.forEach((w,i)=>{
+  const op=document.createElement('option');
+  op.value=String(i);
+  op.textContent=w;
+  sel.appendChild(op);
+ });
+
+ if(previous!=='' && Number(previous)<words.length){
+  sel.value=previous;
+ }
+}
+
+function startGame(){
+ studentName=document.getElementById('student').value.trim();
+
+ if(!studentName){
+  alert('ابتدا نام کارآگاه را بنویس.');
+  return false;
+ }
+
+ try{
+  words=JSON.parse(localStorage.getItem('vazhechin_words')||'[]');
+  if(!Array.isArray(words))words=[];
+ }catch(e){words=[];}
+
+ missionName=localStorage.getItem('vazhechin_mission')||'مأموریت املایی';
+
+ if(!words.length){
+  alert('آموزگار هنوز واژه‌ای ثبت نکرده است.');
+  return false;
+ }
+
+ index=0;
+ score=0;
+ attempts=0;
+ correct=0;
+
+ showCurrent();
+ return true;
+}
+
+function showCurrent(){
+ solved=false;
+
+ document.getElementById('answer').value='';
+ document.getElementById('feedback').textContent='به واژه گوش کن و آن را بنویس.';
+ document.getElementById('nextBtn').disabled=true;
+ document.getElementById('checkBtn').disabled=false;
+
+ document.getElementById('counter').textContent=
+ 'واژه '+(index+1)+' از '+words.length;
+
+ document.getElementById('clue').textContent='واژه را بشنو!';
+ document.getElementById('score').textContent=score;
+}
+
+async function playWord(){
+ if(!studentName){
+  if(!startGame())return;
+ }
+
+ if(!words.length)return;
+
+ try{
+  const blob=await getAudio(String(index));
+
+  if(blob){
+   if(audioUrl)URL.revokeObjectURL(audioUrl);
+   audioUrl=URL.createObjectURL(blob);
+
+   const player=new Audio(audioUrl);
+
+   try{
+    await player.play();
+   }catch(e){
+    fallbackSpeech();
+   }
+  }else{
+   fallbackSpeech();
+  }
+ }catch(e){
+  fallbackSpeech();
+ }
+}
+
+function fallbackSpeech(){
+ if(!('speechSynthesis' in window)){
+  alert('پخش خودکار صدا در این مرورگر پشتیبانی نمی‌شود.');
+  return;
+ }
+
+ const u=new SpeechSynthesisUtterance(words[index]);
+ u.lang='fa-IR';
+
+ speechSynthesis.cancel();
+ speechSynthesis.speak(u);
+}
+
+function checkAnswer(){
+ if(!studentName){
+  if(!startGame())return;
+ }
+
+ if(solved)return;
+
+ const answer=document.getElementById('answer').value;
+
+ if(!answer.trim()){
+  alert('پاسخت را بنویس.');
+  return;
+ }
+
+ attempts++;
+
+ if(normalize(answer)===normalize(words[index])){
+  solved=true;
+  correct++;
+  score+=2;
+
+  document.getElementById('feedback').innerHTML=
+  '<span class="good">آفرین کارآگاه! پاسخ درست است. ⭐</span>';
+
+  document.getElementById('nextBtn').disabled=false;
+  document.getElementById('checkBtn').disabled=true;
+
+ }else{
+  document.getElementById('feedback').innerHTML=
+  '<span class="bad">این بار درست نبود. دوباره فکر کن و تلاش کن.</span>';
+ }
+
+ document.getElementById('score').textContent=score;
+}
+
+function nextWord(){
+ if(!solved)return;
+
+ if(index<words.length-1){
+  index++;
+  showCurrent();
+ }else{
+  finishGame();
+ }
+}
+
+function finishGame(){
+ document.getElementById('clue').textContent='🎉 مأموریت تمام شد!';
+ document.getElementById('counter').textContent='پایان مأموریت';
+
+ document.getElementById('feedback').textContent=
+ 'آفرین '+studentName+'! مأموریتت تمام شد.';
+
+ document.getElementById('nextBtn').disabled=true;
+ document.getElementById('checkBtn').disabled=true;
+
+ const reports=JSON.parse(localStorage.getItem(REPORT_KEY)||'[]');
+
+ reports.push({
+  name:studentName,
+  mission:missionName,
+  correct:correct,
+  attempts:attempts,
+  score:score,
+  date:new Date().toLocaleDateString('fa-IR')
+ });
+
+ localStorage.setItem(REPORT_KEY,JSON.stringify(reports));
+}
+
+/* بررسی شرایط واقعی ضبط میکروفون */
+
+function checkMicrophone(){
+ const status=document.getElementById('micStatus');
+
+ if(!window.isSecureContext){
+  status.innerHTML=
+  '<span class="bad">⚠️ این صفحه در محیط امن اجرا نمی‌شود. نشانی بازی باید با HTTPS شروع شود.</span>';
+  return;
+ }
+
+ if(!navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia){
+  status.innerHTML=
+  '<span class="bad">مرورگر امکان دسترسی به میکروفون را فراهم نکرده است. Chrome را به‌روز کن.</span>';
+  return;
+ }
+
+ status.innerHTML=
+ '<span class="good">✓ محیط امن است و مرورگر از میکروفون پشتیبانی می‌کند. برای درخواست مجوز، شروع ضبط را بزن.</span>';
+}
+
+/* ضبط صدا */
+
+async function recordAudio(){
+
+ const i=document.getElementById('recordSelect').value;
+ const status=document.getElementById('recordStatus');
+
+ if(i===''){
+  alert('ابتدا واژه‌ها را ذخیره کن.');
+  return;
+ }
+
+ if(!window.isSecureContext){
+  status.textContent=
+  'خطا: صفحه امن نیست. بازی را با نشانی HTTPS باز کن. اجرای فایل از حافظه گوشی برای ضبط مناسب نیست.';
+  return;
+ }
+
+ if(!navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia){
+
+  status.textContent=
+  'مرورگر امکان دسترسی به میکروفون را ندارد. از نسخه به‌روز Chrome استفاده کن.';
+  return;
+ }
+
+ if(!window.MediaRecorder){
+  status.textContent=
+  'این مرورگر از ضبط صدا پشتیبانی نمی‌کند.';
+  return;
+ }
+
+ document.getElementById('recordBtn').disabled=true;
+ status.textContent='در حال درخواست اجازه میکروفون...';
+
+ try{
+
+  stream=await navigator.mediaDevices.getUserMedia({
+   audio:{
+    echoCancellation:true,
+    noiseSuppression:true,
+    autoGainControl:true
+   }
+  });
+
+  chunks=[];
+
+  let options={};
+
+  if(MediaRecorder.isTypeSupported){
+   if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')){
+    options.mimeType='audio/webm;codecs=opus';
+   }else if(MediaRecorder.isTypeSupported('audio/webm')){
+    options.mimeType='audio/webm';
+   }
+  }
+
+  recorder=new MediaRecorder(stream,options);
+
+  recorder.ondataavailable=(event)=>{
+   if(event.data && event.data.size>0){
+    chunks.push(event.data);
+   }
+  };
+
+  recorder.onerror=(event)=>{
+   status.textContent='خطای ضبط: '+(event.error?.message||'خطای نامشخص');
+  };
+
+  recorder.onstop=async()=>{
+
+   try{
+
+    const mime=recorder.mimeType ||
+    (chunks[0] && chunks[0].type) ||
+    'audio/webm';
+
+    const blob=new Blob(chunks,{type:mime});
+
+    if(!blob.size){
+     throw new Error('صدای ضبط‌شده خالی است.');
+    }
+
+    await putAudio(i,blob);
+
+    status.innerHTML=
+    '<span class="good">✓ صدای واژه با موفقیت ذخیره شد.</span>';
+
+   }catch(error){
+
+    status.textContent='ذخیره صدا ناموفق بود: '+error.message;
+
+   }finally{
+
+    if(stream){
+     stream.getTracks().forEach(track=>track.stop());
+    }
+
+    stream=null;
+    recorder=null;
+    chunks=[];
+
+    document.getElementById('recordBtn').disabled=false;
+    document.getElementById('stopBtn').disabled=true;
+   }
+  };
+
+  recorder.start();
+
+  status.textContent='🔴 ضبط در حال انجام است...';
+  document.getElementById('stopBtn').disabled=false;
+
+ }catch(error){
+
+  if(stream){
+   stream.getTracks().forEach(track=>track.stop());
+  }
+
+  stream=null;
+
+  document.getElementById('recordBtn').disabled=false;
+  document.getElementById('stopBtn').disabled=true;
+
+  let message='خطای نامشخص';
+
+  if(error.name==='NotAllowedError' ||
+     error.name==='PermissionDeniedError'){
+   message='اجازه میکروفون داده نشده است. مجوز میکروفون Chrome و مجوز سایت را بررسی کن.';
+  }
+
+  else if(error.name==='NotFoundError'){
+   message='میکروفونی در دستگاه پیدا نشد.';
+  }
+
+  else if(error.name==='NotReadableError'){
+   message='میکروفون در برنامه دیگری مشغول استفاده است.';
+  }
+
+  else if(error.name==='SecurityError'){
+   message='مرورگر به دلایل امنیتی اجازه ضبط نمی‌دهد. صفحه را با HTTPS باز کن.';
+  }
+
+  status.innerHTML=
+  '<span class="bad">ضبط انجام نشد: '+message+
+  '<br>کد خطا: '+error.name+'</span>';
+ }
+}
+
+function stopRecording(){
+
+ if(recorder && recorder.state!=='inactive'){
+  document.getElementById('stopBtn').disabled=true;
+  document.getElementById('recordStatus').textContent=
+  'در حال ذخیره صدای ضبط‌شده...';
+
+  recorder.stop();
+ }
+}
+
+/* پخش صدای ذخیره‌شده */
+
+async function playRecorded(){
+
+ const i=document.getElementById('recordSelect').value;
+
+ if(i===''){
+  alert('ابتدا یک واژه انتخاب کن.');
+  return;
+ }
+
+ try{
+
+  const blob=await getAudio(i);
+
+  if(!blob){
+   alert('برای این واژه صدایی ضبط نشده است.');
+   return;
+  }
+
+  if(audioUrl)URL.revokeObjectURL(audioUrl);
+
+  audioUrl=URL.createObjectURL(blob);
+
+  const player=document.getElementById('audioPlayer');
+  player.src=audioUrl;
+  await player.play();
+
+ }catch(error){
+
+  document.getElementById('recordStatus').textContent=
+  'پخش صدا ممکن نشد: '+error.message;
+ }
+}
+
+/* حذف صدای ذخیره‌شده */
+
+async function deleteRecorded(){
+
+ const i=document.getElementById('recordSelect').value;
+
+ if(i==='' || !confirm('صدای این واژه حذف شود؟'))return;
+
+ try{
+
+  await removeAudio(i);
+
+  document.getElementById('audioPlayer').removeAttribute('src');
+  document.getElementById('audioPlayer').load();
+
+  document.getElementById('recordStatus').textContent='صدا حذف شد.';
+
+ }catch(error){
+
+  document.getElementById('recordStatus').textContent=
+  'حذف صدا ناموفق بود: '+error.message;
+ }
+}
+
+/* گزارش‌ها */
+
+function renderReports(){
+
+ const data=JSON.parse(localStorage.getItem(REPORT_KEY)||'[]');
+
+ document.getElementById('reportStats').textContent=
+ 'تعداد کل اجراها: '+data.length;
+
+ const body=document.getElementById('reportBody');
+ body.innerHTML='';
+
+ data.forEach(r=>{
+
+  const tr=document.createElement('tr');
+
+  [r.name,r.mission,r.correct,r.attempts,r.score].forEach(v=>{
+
+   const td=document.createElement('td');
+   td.textContent=v;
+   tr.appendChild(td);
+
+  });
+
+  body.appendChild(tr);
+ });
+}
+
+function downloadCSV(){
+
+ const data=JSON.parse(localStorage.getItem(REPORT_KEY)||'[]');
+
+ const rows=[
+ ['نام','مأموریت','پاسخ درست','تلاش','امتیاز','تاریخ'],
+ ...data.map(r=>[
+ r.name,r.mission,r.correct,r.attempts,r.score,r.date
+ ])
+ ];
+
+ const csv='\uFEFF'+rows.map(row=>
+ row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')
+ ).join('\n');
+
+ const url=URL.createObjectURL(
+ new Blob([csv],{type:'text/csv;charset=utf-8'})
+ );
+
+ const a=document.createElement('a');
+ a.href=url;
+ a.download='gozaresh-vazhechin.csv';
+ a.click();
+
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function clearReports(){
+
+ if(!confirm('همه گزارش‌ها پاک شوند؟'))return;
+
+ localStorage.removeItem(REPORT_KEY);
+ renderReports();
+}
+
+document.getElementById('student').addEventListener('change',()=>{
+ studentName=document.getElementById('student').value.trim();
+});
+
+checkMicrophone();
+loadWords();
+
+</script>
+</body>
+</html>
