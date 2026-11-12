@@ -1,0 +1,94 @@
+
+let mediaRecorder = null;
+let audioChunks = [];
+let microphoneStream = null;
+let recordedAudio = null;
+
+async function startRecording() {
+  const status = document.getElementById("recordStatus");
+
+  try {
+    if (!window.isSecureContext) {
+      throw new Error(
+        "صفحه امن نیست. بازی را با آدرس HTTPS باز کن."
+      );
+    }
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+      throw new Error(
+        "مرورگر امکان دسترسی به میکروفون را فراهم نکرده است."
+      );
+    }
+
+    status.textContent = "در حال درخواست اجازه میکروفون...";
+
+    microphoneStream =
+      await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+
+    const mimeType =
+      MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : "audio/webm";
+
+    mediaRecorder = new MediaRecorder(
+      microphoneStream,
+      { mimeType }
+    );
+
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        audioChunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      recordedAudio = new Blob(audioChunks, {
+        type: mediaRecorder.mimeType
+      });
+
+      const audioURL = URL.createObjectURL(recordedAudio);
+
+      const player = document.getElementById("audioPreview");
+      if (player) {
+        player.src = audioURL;
+        player.style.display = "block";
+      }
+
+      status.textContent =
+        "ضبط با موفقیت انجام شد. صدای خودت را پخش کن.";
+
+      microphoneStream.getTracks().forEach(track => track.stop());
+      microphoneStream = null;
+    };
+
+    mediaRecorder.start();
+
+    status.textContent = "ضبط صدا شروع شد...";
+
+  } catch (error) {
+    console.error("Microphone error:", error);
+
+    status.textContent =
+      "خطای ضبط: " + error.name + " — " + error.message;
+
+    if (microphoneStream) {
+      microphoneStream.getTracks().forEach(track => track.stop());
+      microphoneStream = null;
+    }
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+  }
+}
